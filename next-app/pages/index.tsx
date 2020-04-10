@@ -1,22 +1,60 @@
 import React from 'react';
 import Layout from '../components/layout';
-import Link from 'next/link';
+import fetch from 'isomorphic-unfetch';
+import { Task } from '../models/task';
+import ListItem from '../components/listItem';
+import { DataResponse } from '../utils/api';
 
-const PostLink = (props:any) =>
-  <li>
-    <Link href={`/post?title=${props.title}`}>
-      <a>{props.title}</a>
-    </Link>
-  </li>
+type IndexProps = {
+  tasks: Task[]
+};
 
-const Home = () =>
+const Index = ({ tasks }: IndexProps) =>
   <Layout>
-    <h1>My Blog</h1>
+    <h1>Task List</h1>
     <ul>
-      <PostLink title="Hello Next.js" />
-      <PostLink title="Learn Next.js is awesome" />
-      <PostLink title="Deploy apps with Zeit" />
+      {
+        tasks.map((task: Task) => (
+          <li key={ task.id }>
+            <ListItem task={ task } />
+          </li>
+        ))
+      }
     </ul>
-  </Layout>;
+    <div>New Task</div>
+    <ListItem task={ { task: '', completed: false } } />
+    <style jsx>{`
+        h1,
+        a {
+          font-family: 'Arial';
+        }
 
-export default Home;
+        ul {
+          padding: 0;
+        }
+
+        li {
+          list-style: none;
+          margin: 5px 0;
+        }
+
+        a {
+          text-decoration: none;
+          color: blue;
+        }
+
+        a:hover {
+          opacity: 0.6;
+        }
+      `}</style>
+  </Layout>
+
+Index.getInitialProps = async function () {
+  const res = await fetch('http://localhost:3000/api/tasks');
+  const json = await res.json() as DataResponse<Task[]>;
+  console.log(`Task data fetched. Count: ${json.data.length}`);
+
+  return { tasks: json.data };
+}
+
+export default Index;
