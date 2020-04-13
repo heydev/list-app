@@ -16,6 +16,8 @@ type ApiMethods = Partial<Record<MethodType, (req: NextApiRequest, res: NextApiR
 export const InvokeApiMethod = (req: NextApiRequest,
   res: NextApiResponse,
   methods: ApiMethods) => {
+  console.log(req.url);
+  console.log(req.body);
   if (methods[req.method as MethodType] !== undefined) {
     const result = methods[req.method as MethodType]!(req, res);
 
